@@ -6,7 +6,7 @@ if ('geolocation' in navigator) {
     let userLong = position.coords.longitude;
     let userLat = position.coords.latitude;
     return new Promise((resolve) => {
-      resolve(renderCurrentWeather(userLong, userLat));
+      resolve(renderCurrentWeather(userLong, userLat), renderForecast(userLong, userLat));
     });
   });
 
@@ -31,5 +31,26 @@ function renderCurrentWeather(long, lat) {
           <div class="temp">${data.main.temp}&#176;C</div>
           <div class="condition">${data.weather[0].description}</div>
         </div>`);
+    });
+}
+
+function renderForecast(long, lat) {
+  console.log('Hey');
+  const forecast = document.querySelector('.forecast');
+
+  document.querySelectorAll('.day').forEach(day => {
+    // day.remove();
+  });
+
+  return fetch(`${APICall}forecast?lat=${lat}&lon=${long}&units=metric&appid=${APIKey}`)
+    .then(response => response.json())
+    .then(data => {
+      const weatherData = [];
+
+      data.list.forEach(forecast => {
+        if (forecast.dt_txt.includes('15:00:00')) {
+          console.log(forecast);
+        }
+      });
     });
 }
