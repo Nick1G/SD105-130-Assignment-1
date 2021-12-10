@@ -14,6 +14,12 @@ if ('geolocation' in navigator) {
   alert(`Can't find your location!`);
 }
 
+function fixDateToWeekday(date) {
+  const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const newDate = new Date(date).getDay();
+  return weekdays[newDate];
+}
+
 function renderCurrentWeather(long, lat) {
   const currentWeather = document.querySelector('.current-conditions');
 
@@ -45,11 +51,11 @@ function renderForecast(long, lat) {
   return fetch(`${APICall}forecast?lat=${lat}&lon=${long}&units=metric&appid=${APIKey}`)
     .then(response => response.json())
     .then(data => {
-      const weatherData = [];
-
       data.list.forEach(forecast => {
+
         if (forecast.dt_txt.includes('15:00:00')) {
-          console.log(forecast);
+          const weekday = fixDateToWeekday(forecast.dt_txt);
+          console.log(weekday);
         }
       });
     });
