@@ -6,7 +6,7 @@ if ('geolocation' in navigator) {
     let userLong = position.coords.longitude;
     let userLat = position.coords.latitude;
     return new Promise((resolve) => {
-      resolve(renderCurrentWeather(userLong, userLat), renderForecast(userLong, userLat));
+      resolve(renderCurrentWeather(userLong, userLat), getForecast(userLong, userLat));
     });
   });
 
@@ -22,9 +22,9 @@ function fixDateToWeekday(date) {
 
 function getToday() {
   const dateObj = new Date();
-  const month = dateObj.getUTCMonth() + 1;
-  const day = dateObj.getUTCDate();
-  const year = dateObj.getUTCFullYear();
+  const month = dateObj.getMonth() + 1;
+  const day = dateObj.getDate();
+  const year = dateObj.getFullYear();
   const dateToday = `${year}-${month}-${day}`;
   return dateToday;
 }
@@ -36,6 +36,10 @@ function renderCurrentWeather(long, lat) {
     currentWeather.removeChild(currentWeather.firstChild);
   }
 
+  document.querySelectorAll('.day').forEach(day => {
+    day.remove();
+  });
+
   return fetch(`${APICall}weather?lat=${lat}&lon=${long}&units=metric&appid=${APIKey}`)
   .then(response => response.json())
   .then(data => {
@@ -44,39 +48,60 @@ function renderCurrentWeather(long, lat) {
       <h2>Current Conditions</h2>
       <img src="http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" />
       <div class="current">
-        <div class="temp">${data.main.temp}&#176;C</div>
+        <div class="temp">${data.main.temp}℃</div>
         <div class="condition">${data.weather[0].description}</div>
       </div>`);
   });
 }
 
-function renderForecast(long, lat) {
-  const forecastEl = document.querySelector('.forecast');
+function getForecast(long, lat) {
   const today = getToday();
-  console.log(today);
-
-  document.querySelectorAll('.day').forEach(day => {
-    // day.remove();
-  });
 
   return fetch(`${APICall}forecast?lat=${lat}&lon=${long}&units=metric&appid=${APIKey}`)
   .then(response => response.json())
   .then(data => {
+    let forecastDays = [];
 
-    data.list.forEach(forecast => {
-      if (!forecast.dt_txt.includes(today)) {
-        const weekday = fixDateToWeekday(forecast.dt_txt);
-        console.log(forecast);
-        // forecastEl.insertAdjacentHTML('beforeend', `
-        //   <div class="day">
-        //     <h3>${weekday}</h3>
-        //     <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon}@2x.png" />
-        //     <div class="description">${forecast.weather[0].description}</div>
-        //     <div class="temp">
-        //       <span class="high">${forecast.main.temp_max}</span>/<span class="low">${forecast.main.temp_min}</span>
-        //     </div>
-        //   </div>`);
+    for (let i = 0; i < data.list.length; i++) {
+      if (!data.list[i].dt_txt.includes(today)) {
+        if (i === 0) {
+          forecastDays.push(data.list[i]);
+          
+        } else if (data.list[i].dt_txt.split(' ')[0] === data.list[i - 1].dt_txt.split(' ')[0]) {
+          forecastDays.push(data.list[i]);
+
+        } else {
+          renderForecast(forecastDays);
+          forecastDays = [];
+          forecastDays.push(data.list[i]);
+        }
       }
-    });
+    }
   });
+}
+
+function renderForecast(array) {
+  const forecastEl = document.querySelector('.forecast');
+  const weekday = fixDateToWeekday(array[0].dt_txt);
+  const lastElement = array.length - 1;
+  const sortedArray = array.sort((a, b) => {
+    return a.main.temp - b.main.temp;
+  });
+  let timeDescription;
+
+  array.forEach(forecast => {
+    if (forecast.dt_txt.includes('15:00:00')) {
+      timeDescription = forecast;
+    }
+  });
+
+  forecastEl.insertAdjacentHTML('beforeend', `
+    <div class="day">
+      <h3>${weekday}</h3>
+      <img src="http://openweathermap.org/img/wn/${timeDescription.weather[0].icon}@2x.png" />
+      <div class="description">${timeDescription.weather[0].description}</div>
+      <div class="temp">
+        <span class="high">${sortedArray[lastElement].main.temp}℃</span>/<span class="low">${sortedArray[0].main.temp}℃</span>
+      </div>
+    </div>`);
 }
