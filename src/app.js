@@ -1,4 +1,3 @@
-const APIKey = '176e29a31996dac45b61c17713b398de';
 const APICall = 'https://api.openweathermap.org/data/2.5/'
 
 if ('geolocation' in navigator) {
@@ -40,7 +39,7 @@ function renderCurrentWeather(long, lat) {
     day.remove();
   });
 
-  return fetch(`${APICall}weather?lat=${lat}&lon=${long}&units=metric&appid=${APIKey}`)
+  return fetch(`${APICall}weather?lat=${lat}&lon=${long}&units=metric&appid=176e29a31996dac45b61c17713b398de`)
   .then(response => response.json())
   .then(data => {
 
@@ -57,7 +56,7 @@ function renderCurrentWeather(long, lat) {
 function getForecast(long, lat) {
   const today = getToday();
 
-  return fetch(`${APICall}forecast?lat=${lat}&lon=${long}&units=metric&appid=${APIKey}`)
+  return fetch(`${APICall}forecast?lat=${lat}&lon=${long}&units=metric&appid=176e29a31996dac45b61c17713b398de`)
   .then(response => response.json())
   .then(data => {
     let forecastDays = [];
