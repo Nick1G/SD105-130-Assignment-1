@@ -63,10 +63,7 @@ function getForecast(long, lat) {
 
     for (let i = 0; i < data.list.length; i++) {
       if (!data.list[i].dt_txt.includes(today)) {
-        if (i === 0) {
-          forecastDays.push(data.list[i]);
-          
-        } else if (data.list[i].dt_txt.split(' ')[0] === data.list[i - 1].dt_txt.split(' ')[0]) {
+        if (data.list[i].dt_txt.split(' ')[0] === data.list[i - 1].dt_txt.split(' ')[0]) {
           forecastDays.push(data.list[i]);
 
         } else {
@@ -76,10 +73,18 @@ function getForecast(long, lat) {
         }
       }
     }
+
+    if (document.querySelectorAll('.day').length === 4) {
+      renderForecast(forecastDays);
+    }
   });
 }
 
 function renderForecast(array) {
+  if (array.length === 0) {
+    return;
+  }
+
   const forecastEl = document.querySelector('.forecast');
   const weekday = fixDateToWeekday(array[0].dt_txt);
   const lastElement = array.length - 1;
