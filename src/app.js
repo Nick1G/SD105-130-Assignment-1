@@ -63,7 +63,10 @@ function getForecast(long, lat) {
 
     for (let i = 0; i < data.list.length; i++) {
       if (!data.list[i].dt_txt.includes(today)) {
-        if (data.list[i].dt_txt.split(' ')[0] === data.list[i - 1].dt_txt.split(' ')[0]) {
+        if (i === 0) {
+          forecastDays.push(data.list[i]);
+          
+        } else if (data.list[i].dt_txt.split(' ')[0] === data.list[i - 1].dt_txt.split(' ')[0]) {
           forecastDays.push(data.list[i]);
 
         } else {
